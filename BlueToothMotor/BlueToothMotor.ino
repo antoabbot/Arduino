@@ -22,13 +22,9 @@
 
 Adafruit_BluefruitLE_SPI ble(BLUEFRUIT_SPI_CS, BLUEFRUIT_SPI_IRQ, BLUEFRUIT_SPI_RST);
 
+Adafruit_DCMotor *motor[5];
 Adafruit_MotorShield AFMS1 = Adafruit_MotorShield(0x60); 
 Adafruit_MotorShield AFMS2 = Adafruit_MotorShield(0x61); 
-Adafruit_DCMotor *motor1 = AFMS1.getMotor(1);
-Adafruit_DCMotor *motor2 = AFMS1.getMotor(2);
-Adafruit_DCMotor *motor3 = AFMS1.getMotor(3);
-Adafruit_DCMotor *motor4 = AFMS1.getMotor(4);
-Adafruit_DCMotor *motor5 = AFMS2.getMotor(1);
 
 
 // A small helper
@@ -54,11 +50,14 @@ extern uint8_t packetbuffer[];
 /**************************************************************************/
 void setup(void)
 {
-//  while (!Serial);  // required for Flora & Micro
-//  delay(500);
-
-  AFMS1.begin();  // create with the default frequency 1.6KHz
-  AFMS2.begin();  // create with the default frequency 1.6KHz
+  motor[0] = AFMS1.getMotor(1);
+  motor[1] = AFMS1.getMotor(2);
+  motor[2] = AFMS1.getMotor(3);
+  motor[3] = AFMS1.getMotor(4);
+  motor[4] = AFMS1.getMotor(5);
+  
+  AFMS1.begin();  
+  AFMS2.begin(); 
 
 
   Serial.begin(115200);
@@ -136,71 +135,73 @@ void loop(void)
     uint8_t buttnum = packetbuffer[2] - '0';
     boolean pressed = packetbuffer[3] - '0';
 
+    uint8_t dirn = getMotorDirection(buttnum);
+    uint8_t ix = getMotorIndex(buttnum);
+
+    Serial.print("Motor "); Serial.print(ix);
+    if (pressed)
+      Serial.println(dirn == FORWARD ? " forward" : " reverse");
+    else
+      Serial.println(" stopped");
+
+
     if (pressed) 
     {
-      switch(buttnum)
-      {
-        case 1:
-          Serial.println("Motor 1 forward");
-          motor1->setSpeed(150);
-          motor1->run(FORWARD);
-          break;
-        case 2:
-          Serial.println("Motor 1 reverse");
-          motor1->setSpeed(150);
-          motor1->run(BACKWARD);
-          break;
-        break;
-        case 3:
-          Serial.println("Motor 2 forward");
-          motor2->setSpeed(150);
-          motor2->run(FORWARD);
-          break;
-        case 4:
-          Serial.println("Motor 2 reverse");
-          motor2->setSpeed(150);
-          motor2->run(BACKWARD);
-          break;
-        case 5:
-          Serial.println("Motor 3 forward");
-          motor3->setSpeed(150);
-          motor3->run(FORWARD);
-          break;
-        case 6:
-          Serial.println("Motor 3 reverse");
-          motor3->setSpeed(150);
-          motor3->run(BACKWARD);
-          break;
-        case 7:
-          Serial.println("Motor 4 forward");
-          motor5->setSpeed(150);
-          motor5->run(FORWARD);
-          break;
-        case 8:
-          Serial.println("Motor 4 reverse");
-          motor5->setSpeed(150);
-          motor5->run(BACKWARD);
-          break;
-      }
-
-      
+      motor[ix]->setSpeed(150);
+      motor[ix]->run(dirn);
     }
     else 
     {
-      Serial.println("Buttons released, stop");
-      
-      motor1->setSpeed(0);
-      motor2->setSpeed(0);
-      motor3->setSpeed(0);
-      motor4->setSpeed(0);
-      motor5->setSpeed(0);
-      motor1->run(RELEASE);
-      motor2->run(RELEASE);
-      motor3->run(RELEASE);
-      motor4->run(RELEASE);
-      motor5->run(RELEASE);
+      motor[ix]->run(RELEASE);
     }
   }
 
 
 }
+
+uint8_t getMotorDirection(uint8_t buttnum)
+{
+  switch(buttnum)
+  {
+    case 1:
+    case 3:
+    case 5:
+    case 7:
+      return FORWARD;
+      break;
+    case 2:
+    case 4:
+    case 6:
+    case 8:
+      return BACKWARD;
+      break;
+  }
+}
+
+
+uint8_t getMotorIndex(uint8_t buttnum)
+{
+  switch(buttnum)
+  {
+    case 1:
+    case 2:
+      return 0;
+      break;
+    case 3:
+    case 4:
+      return 1;
+      break;
+    case 5:
+    case 6:
+      return 2;
+      break;
+    case 7:
+    case 8:
+      return 3;
+      break;
+  }  
+}
+
+
+
+
