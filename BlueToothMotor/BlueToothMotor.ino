@@ -110,64 +110,69 @@ void loop(void)
     uint8_t buttnum = packetbuffer[2] - '0';
     boolean pressed = packetbuffer[3] - '0';
 
+    uint8_t dirn = getMotorDirection(buttnum);
+    uint8_t ix = getMotorIndex(buttnum);
+
+    Serial.print("Motor "); Serial.print(ix);
+    if (pressed)
+      Serial.println(dirn == FORWARD ? " forward" : " reverse");
+    else
+      Serial.println(" stopped");
+
     if (pressed) 
     {
-      switch(buttnum)
-      {
-        case 1:
-          Serial.println("Motor 1 forward");
-          motor[0]->setSpeed(150);
-          motor[0]->run(FORWARD);
-          break;
-        case 2:
-          Serial.println("Motor 1 reverse");
-          motor[0]->setSpeed(150);
-          motor[0]->run(BACKWARD);
-          break;
-        break;
-        case 3:
-          Serial.println("Motor 2 forward");
-          motor[1]->setSpeed(150);
-          motor[1]->run(FORWARD);
-          break;
-        case 4:
-          Serial.println("Motor 2 reverse");
-          motor[1]->setSpeed(150);
-          motor[1]->run(BACKWARD);
-          break;
-        case 5:
-          Serial.println("Motor 3 forward");
-          motor[2]->setSpeed(150);
-          motor[2]->run(FORWARD);
-          break;
-        case 6:
-          Serial.println("Motor 3 reverse");
-          motor[2]->setSpeed(150);
-          motor[2]->run(BACKWARD);
-          break;
-        case 7:
-          Serial.println("Motor 4 forward");
-          motor[3]->setSpeed(150);
-          motor[3]->run(FORWARD);
-          break;
-        case 8:
-          Serial.println("Motor 4 reverse");
-          motor[3]->setSpeed(150);
-          motor[3]->run(BACKWARD);
-          break;
-      }
+      motor[ix]->setSpeed(150);
+      motor[ix]->run(dirn);
     }
     else 
     {
-      Serial.println("Buttons released, stop");
-      
-      motor[0]->run(RELEASE);
-      motor[1]->run(RELEASE);
-      motor[2]->run(RELEASE);
-      motor[3]->run(RELEASE);
-      motor[4]->run(RELEASE);
+      motor[ix]->run(RELEASE);
     }
   }
 
 
 }
+
+uint8_t getMotorDirection(uint8_t buttnum)
+{
+  switch(buttnum)
+  {
+    case 1:
+    case 3:
+    case 5:
+    case 7:
+      return FORWARD;
+      break;
+    case 2:
+    case 4:
+    case 6:
+    case 8:
+      return BACKWARD;
+      break;
+  }
+}
+
+
+uint8_t getMotorIndex(uint8_t buttnum)
+{
+  switch(buttnum)
+  {
+    case 1:
+    case 2:
+      return 0;
+      break;
+    case 3:
+    case 4:
+      return 1;
+      break;
+    case 5:
+    case 6:
+      return 2;
+      break;
+    case 7:
+    case 8:
+      return 3;
+      break;
+  }  
+}
+
