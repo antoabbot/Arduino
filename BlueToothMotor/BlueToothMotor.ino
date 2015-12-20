@@ -126,8 +126,10 @@ void loop(void)
   uint8_t len = readPacket(&ble, BLE_READPACKET_TIMEOUT);
   if (len == 0) return;
 
+  Serial.println("Got buffer");
   /* Got a packet! */
-  // printHex(packetbuffer, len);
+  printHex(packetbuffer, len);
+  return;
 
 
   // Buttons
