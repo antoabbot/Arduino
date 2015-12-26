@@ -3,6 +3,8 @@
 #include <Adafruit_BLE.h>
 #include <Adafruit_BluefruitLE_SPI.h>
 #include <Adafruit_BluefruitLE_UART.h>
+#include <Wire.h>
+#include <Adafruit_MotorShield.h>
 
 // text buffer for reading commands
 #define READ_BUFSIZE                    (20)
@@ -11,6 +13,9 @@ uint8_t packetbuffer[READ_BUFSIZE+1];
 // Create an instance of the BlueFruit LE class to manage IO
 Adafruit_BluefruitLE_SPI ble(8, 7, 6);
 
+Adafruit_MotorShield AFMS1 = Adafruit_MotorShield(0x61);
+Adafruit_DCMotor *lMotor;
+Adafruit_DCMotor *rMotor;
 
 //
 // Setup function - runs once at startup
@@ -18,6 +23,10 @@ void setup()
 {
   Serial.begin(115200);
   initBle();
+  
+  lMotor = AFMS1.getMotor(1);
+  rMotor = AFMS1.getMotor(2);
+  AFMS1.begin();
 }
 
 //
@@ -32,10 +41,53 @@ void loop()
 
   // read any incoming command packet
   uint8_t len = readPacket();
-  if (len != 0) 
+  if (len == 0) return;
+   
+  if (packetbuffer[1] == 'B') 
   {
-    String s = "Cmd: " + String((char*)packetbuffer);
-    Serial.println(s.c_str());
+    uint8_t buttnum = packetbuffer[2] - '0';
+    boolean pressed = packetbuffer[3] - '0';
+
+    if (!pressed)
+    {
+      Serial.println("Released");
+      lMotor->run(RELEASE);
+      rMotor->run(RELEASE);
+    }
+    else
+    {
+      switch(buttnum)
+      {
+        case 8:
+          Serial.println("Forward");
+          lMotor->setSpeed(150);
+          lMotor->run(FORWARD);
+          rMotor->setSpeed(150);
+          rMotor->run(FORWARD);
+          break;
+        case 7:
+          Serial.println("Backward");
+          lMotor->setSpeed(150);
+          lMotor->run(BACKWARD);
+          rMotor->setSpeed(150);
+          rMotor->run(BACKWARD);
+          break;
+        case 6:
+          Serial.println("Left");
+          lMotor->setSpeed(120);
+          lMotor->run(BACKWARD);
+          rMotor->setSpeed(120);
+          rMotor->run(FORWARD);
+          break;
+        case 5:
+          Serial.println("Right");
+          lMotor->setSpeed(120);
+          lMotor->run(FORWARD);
+          rMotor->setSpeed(120);
+          rMotor->run(BACKWARD);          
+          break;
+      }
+    }
   }
 }
 
