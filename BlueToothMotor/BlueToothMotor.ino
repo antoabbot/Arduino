@@ -128,8 +128,10 @@ void loop(void)
 
   Serial.println("Got buffer");
   /* Got a packet! */
-  printHex(packetbuffer, len);
+  Serial.println(packetbuffer[0]);
   return;
+  
+//  printHex(packetbuffer, len);
 
 
   // Buttons
