@@ -5,10 +5,13 @@
 #include <Adafruit_BluefruitLE_UART.h>
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
+#include <NewPing.h>
 
 // text buffer for reading commands
 #define READ_BUFSIZE                    (20)
 uint8_t packetbuffer[READ_BUFSIZE+1];
+
+#define MAX_DISTANCE 200
 
 // Create an instance of the BlueFruit LE class to manage IO
 Adafruit_BluefruitLE_SPI ble(8, 7, 6);
@@ -16,17 +19,20 @@ Adafruit_BluefruitLE_SPI ble(8, 7, 6);
 Adafruit_MotorShield AFMS1 = Adafruit_MotorShield(0x61);
 Adafruit_DCMotor *lMotor;
 Adafruit_DCMotor *rMotor;
+NewPing sonar(2, 3, MAX_DISTANCE);
 
 //
 // Setup function - runs once at startup
 void setup() 
 {
   Serial.begin(115200);
+    
   initBle();
   
   lMotor = AFMS1.getMotor(1);
   rMotor = AFMS1.getMotor(2);
   AFMS1.begin();
+
 }
 
 //
@@ -34,8 +40,9 @@ void setup()
 void loop() 
 {
   delay(100);
-  int dist = analogRead(A1);
-
+  int dist = sonar.ping_cm();
+  if (dist == 0) dist = MAX_DISTANCE;
+  
   // Write the sensor value out to the listener
   ble.print("!S"); ble.print(dist); ble.println(";");
 
