@@ -1,27 +1,38 @@
+
 #include <SPI.h>
 #include <SoftwareSerial.h>
 #include <Adafruit_BLE.h>
 #include <Adafruit_BluefruitLE_SPI.h>
 #include <Adafruit_BluefruitLE_UART.h>
 
-// text buffer for reading commands
+#define BLUEFRUIT_SPI_CS              8
+#define BLUEFRUIT_SPI_IRQ             7
+#define BLUEFRUIT_SPI_RST             6    // Optional but recommended, set to -1 if unused
+
 #define READ_BUFSIZE                    (20)
 uint8_t packetbuffer[READ_BUFSIZE+1];
 
-// Create an instance of the BlueFruit LE class to manage IO
-Adafruit_BluefruitLE_SPI ble(8, 7, 6);
+
+Adafruit_BluefruitLE_SPI ble(BLUEFRUIT_SPI_CS, BLUEFRUIT_SPI_IRQ, BLUEFRUIT_SPI_RST);
 
 
-//
-// Setup function - runs once at startup
+// A small helper
+void error(const __FlashStringHelper*err) 
+{
+  Serial.println(err);
+  while (1);
+}
+
+
+
 void setup() 
 {
   Serial.begin(115200);
   initBle();
+  
+
 }
 
-//
-// Main loop - runs repeatedly
 void loop() 
 {
   delay(100);
@@ -34,25 +45,12 @@ void loop()
   uint8_t len = readPacket();
   if (len != 0) 
   {
-    String s = "Cmd: " + String((char*)packetbuffer);
+    String s = "Got buffer, len=" + String(len) + ", val=" + String((char*)packetbuffer);
     Serial.println(s.c_str());
   }
 }
 
 
-
-//********************************************************************************************
-
-//
-// An error helper. Prints and terminates
-void error(const __FlashStringHelper*err) 
-{
-  Serial.println(err);
-  while (1);
-}
-
-//
-// Check if the client is connected
 bool isConnected()
 {
   ble.print("+++\n");
@@ -61,8 +59,6 @@ bool isConnected()
   return isConn;
 }
 
-//
-// Initialise the BLE connection in Data mode
 void initBle()
 {
   Serial.print(F("Initialising the Bluefruit LE module: "));
@@ -94,8 +90,6 @@ void initBle()
   Serial.println(F("******************************"));
 }
 
-//
-// Read a data packet starting with !. places data in the buffer and returns length read.
 uint8_t readPacket() 
 {
   uint16_t replyidx = 0;
