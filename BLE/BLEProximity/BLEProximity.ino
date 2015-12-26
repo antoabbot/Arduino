@@ -6,12 +6,14 @@
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
 #include <NewPing.h>
+#include <Servo.h>
 
 // text buffer for reading commands
 #define READ_BUFSIZE                    (20)
 uint8_t packetbuffer[READ_BUFSIZE+1];
 
-#define MAX_DISTANCE 200
+#define MAX_DISTANCE  100
+#define SERVO         5
 
 // Create an instance of the BlueFruit LE class to manage IO
 Adafruit_BluefruitLE_SPI ble(8, 7, 6);
@@ -20,13 +22,18 @@ Adafruit_MotorShield AFMS1 = Adafruit_MotorShield(0x61);
 Adafruit_DCMotor *lMotor;
 Adafruit_DCMotor *rMotor;
 NewPing sonar(2, 3, MAX_DISTANCE);
+Servo servo;
 
 //
 // Setup function - runs once at startup
 void setup() 
 {
   Serial.begin(115200);
-    
+
+  // Connect the servo for the proximity sensor and centre it
+  servo.attach(SERVO);
+  servo.write(90);
+  
   initBle();
   
   lMotor = AFMS1.getMotor(1);
@@ -40,10 +47,9 @@ void setup()
 void loop() 
 {
   delay(100);
+  
   int dist = sonar.ping_cm();
   if (dist == 0) dist = MAX_DISTANCE;
-  
-  // Write the sensor value out to the listener
   ble.print("!S"); ble.print(dist); ble.println(";");
 
   // read any incoming command packet
