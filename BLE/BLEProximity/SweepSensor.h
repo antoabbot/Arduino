@@ -1,3 +1,14 @@
+/*****************************************************************************/
+// Robot remote control via Bluetooth LE
+// Author: Anthony Abbot
+// Date: 27 Dec 2015
+// 
+// This code has been developed for use by the Olney Coder Dojo club
+//
+// Class to support a sweeping proximity sensor controlled by a servo
+//
+/*****************************************************************************/
+
 #ifndef __SweepSensor_h__
 #define __SweepSensor_h__
 

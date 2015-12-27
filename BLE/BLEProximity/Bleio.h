@@ -1,3 +1,15 @@
+/*****************************************************************************/
+// Robot remote control via Bluetooth LE
+// Author: Anthony Abbot
+// Date: 27 Dec 2015
+// 
+// This code has been developed for use by the Olney Coder Dojo club
+//
+// Class to better encapsulate the BLE UART protocol for receiving commands
+// and sending back data
+//
+/*****************************************************************************/
+
 #ifndef __Bleio_h__
 #define __Bleio_h__
 
