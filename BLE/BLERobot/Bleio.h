@@ -26,7 +26,8 @@
 class Bleio
 {
   private:
-    uint8_t packetbuffer[BLEIO_BUFSIZE+1];
+    uint8_t recvbuffer[BLEIO_BUFSIZE + 1];
+    char    sendbuffer[BLEIO_BUFSIZE + 1];
     Adafruit_BluefruitLE_SPI ble;
   
   public:
@@ -34,8 +35,8 @@ class Bleio
     void initBle();
     bool isConnected();
     uint8_t readPacket(); 
-    void sendCommand(const char * cmd);
-    bool getButton(uint8_t& buttnum, bool& pressed);
+    void sendData(const char prefix, int value);
+    bool getButton(int& buttnum, bool& pressed);
   
 };
 

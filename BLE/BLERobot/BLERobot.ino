@@ -79,22 +79,51 @@ void setup()
   AFMS1.begin();        // Start the motor control
 }
 
+bool isconnected = true;
 
 /*****************************************************************************/
 // Main loop - runs repeatedly
 void loop() 
 {
-  delay(100);
+  delay(100);       // Don't spin too fast!
 
-  // Read the sensor distance
+  // Check if we are connected. if Not, don't bother doing any comms but stop the motors
+  if (!ble.isConnected())
+  {
+    if (isconnected)
+    {
+      isconnected = false;
+      Serial.println("BLE disconnected!");
+      lMotor->run(RELEASE);
+      rMotor->run(RELEASE);
+    }
+    
+    delay(2000);  // Sleep for 2 seconds
+    return;   
+  }
+  else
+  {
+    if(!isconnected)
+    {
+      isconnected = true;
+      Serial.println("BLE reconnected!");
+    }
+  }
+  
+  // Read the sensor distance and angle, and broadcast back to the client
   uint16_t dist = sensor.get_distance();
-  String s = "!S" + String(dist) + ";";
-  ble.sendCommand(s.c_str());
+  uint8_t angle = sensor.get_angle();
 
-  uint8_t buttnum;
-  bool pressed;
+  ble.sendData('D', dist);
+  //ble.sendData('A', angle);
 
-  // Check if there has been a button pressed on the
+  //
+  // Read which of the 8 buttons on the Bluefruit LE app is pressed
+  volatile bool isMotor = false;   // flag up motor control commands
+  bool pressed;           // Pressed or released
+  int buttnum;        // The button number
+
+  // Check if there is data. If false, then no command waiting for us
   if (!ble.getButton(buttnum, pressed))
     return;
 
@@ -104,56 +133,63 @@ void loop()
     case 7:
       Serial.println(":Forward");
       speed = 150;
+      isMotor = true;
       lDir = (pressed) ? FORWARD : RELEASE;
       rDir = (pressed) ? FORWARD : RELEASE;
       break;
     case 8:
       Serial.println(":Backward");
       speed = 150;
+      isMotor = true;
       lDir = (pressed) ? BACKWARD : RELEASE;
       rDir = (pressed) ? BACKWARD : RELEASE;        
       break;
     case 6:
       Serial.println(":Left");
       speed = 100;
+      isMotor = true;
       lDir = (pressed) ? BACKWARD : RELEASE;
       rDir = (pressed) ? FORWARD : RELEASE;
       break;
     case 5:
       Serial.println(":Right");
       speed = 100;
+      isMotor = true;
       lDir = (pressed) ? FORWARD : RELEASE;
       rDir = (pressed) ? BACKWARD : RELEASE;
       break;
     case 1:
       Serial.println(":LookLeft");
-      sensor.left();
-      lDir = RELEASE;
-      rDir = RELEASE;
+      sensor.setangle(10);
+//      lDir = RELEASE;
+//      rDir = RELEASE;
       break;
     case 2:
       Serial.println(":LookAhead");
       sensor.centre();
-      lDir = RELEASE;
-      rDir = RELEASE;
+//      lDir = RELEASE;
+//      rDir = RELEASE;
       break;
     case 3:
       Serial.println(":LookRight");
-      sensor.right();
-      lDir = RELEASE;
-      rDir = RELEASE;
+      sensor.setangle(170);
+//      lDir = RELEASE;
+//      rDir = RELEASE;
       break;
     default:
       Serial.println(":Other");
-      lDir = RELEASE;
-      rDir = RELEASE;
+//      lDir = RELEASE;
+//      rDir = RELEASE;
       break;
   }
 
-  lMotor->setSpeed(speed);
-  lMotor->run(lDir);
-  rMotor->setSpeed(speed);
-  rMotor->run(rDir);
+  if (isMotor)
+  {
+    lMotor->setSpeed(speed);
+    lMotor->run(lDir);
+    rMotor->setSpeed(speed);
+    rMotor->run(rDir);
+  }
 }
 
 

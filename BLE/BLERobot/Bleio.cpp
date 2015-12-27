@@ -59,21 +59,24 @@ bool Bleio::isConnected()
   return isConn;
 }
 
-void Bleio::sendCommand(const char * cmd)
-{
-  ble.println(cmd);
-}
-
-bool Bleio::getButton(uint8_t& buttnum, bool& pressed)
+bool Bleio::getButton(int& buttnum, bool& pressed)
 {
   uint8_t len = readPacket();
   if (len == 0) return false;
-  if (packetbuffer[1] != 'B') return false;
-  buttnum = packetbuffer[2] - '0';
-  pressed = packetbuffer[3] - '0';
+  if (recvbuffer[1] != 'B') return false;
+  buttnum = recvbuffer[2] - '0';
+  pressed = recvbuffer[3] - '0';
+
+  Serial.println(buttnum);
   return true;
 }
 
+void Bleio::sendData(const char prefix, int value)
+{
+  memset(sendbuffer, 0, BLEIO_BUFSIZE);
+  sprintf(sendbuffer, "!%c%03d;", prefix, value);
+  ble.println(sendbuffer);  
+}
 
 //
 // Read a data packet starting with !. places data in the buffer and returns length read.
@@ -82,7 +85,7 @@ uint8_t Bleio::readPacket()
   uint16_t replyidx = 0;
 
   // copy zeros into the buffer
-  memset(packetbuffer, 0, BLEIO_BUFSIZE);
+  memset(recvbuffer, 0, BLEIO_BUFSIZE);
 
   // read data from the buffer while it is available
   while (ble.available()) 
@@ -90,14 +93,14 @@ uint8_t Bleio::readPacket()
     char c =  ble.read();
     if (c == '!') replyidx = 0;
     if (replyidx >= 20) continue;
-    packetbuffer[replyidx] = c;
+    recvbuffer[replyidx] = c;
     replyidx++;
   }
     
-  packetbuffer[replyidx] = 0;  // null terminate the buffer
+  recvbuffer[replyidx] = 0;  // null terminate the buffer
 
   if (!replyidx) return 0;
-  if (packetbuffer[0] != '!') return 0;
+  if (recvbuffer[0] != '!') return 0;
     
   return replyidx;
 }

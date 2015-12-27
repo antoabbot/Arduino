@@ -10,22 +10,12 @@ SweepSensor::SweepSensor(uint8_t servoPin, uint8_t pingPin1, uint8_t pingPin2, u
 
 void SweepSensor::centre()
 {
-  servo.write(90);  
+  setangle(90);
 }
 
-void SweepSensor::left()
+void SweepSensor::setangle(uint8_t newangle)
 {
-  servo.write(0);  
-}
-
-void SweepSensor::right()
-{
-  servo.write(180);  
-}
-
-
-void SweepSensor::setdirection(uint8_t angle)
-{
+  angle = constrain(newangle, 0, 180);
   servo.write(angle);
 }
 
@@ -36,4 +26,10 @@ uint16_t SweepSensor::get_distance()
   if (dist == 0) dist = maxDistance;
   return dist;
 }
+
+uint16_t SweepSensor::get_angle()
+{
+  return angle;
+}
+
 

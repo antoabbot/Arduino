@@ -23,14 +23,15 @@ class SweepSensor
     Servo servo;
     uint8_t servoPin;
     uint16_t maxDistance;
+    uint8_t angle;
   public:
     SweepSensor(uint8_t servoPin, uint8_t pingPin1, uint8_t pingPin2, uint16_t maxDistance);
     void centre();
-    void left();
-    void right();
-    void setdirection(uint8_t angle);
+    void setangle(uint8_t angle);
 
     uint16_t get_distance();
+    uint16_t get_angle();
+
 };
 
 #endif // __SweepSensor_h__
