@@ -13,6 +13,23 @@ void SweepSensor::centre()
   servo.write(90);  
 }
 
+void SweepSensor::left()
+{
+  servo.write(0);  
+}
+
+void SweepSensor::right()
+{
+  servo.write(180);  
+}
+
+
+void SweepSensor::setdirection(uint8_t angle)
+{
+  servo.write(angle);
+}
+
+
 uint16_t SweepSensor::get_distance()
 {
   uint16_t dist = sonar.ping_cm();
