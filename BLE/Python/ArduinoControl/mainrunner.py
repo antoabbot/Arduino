@@ -61,8 +61,7 @@ def main():
         tx = uart.find_characteristic(TX_CHAR_UUID)
 
         # Write a string to the TX characteristic.
-        print('Sending message to device...')
-        tx.write_value('!Hello world\r\n')
+        tx.write_value('!B21;\r\n')
 
         # Function to receive RX characteristic changes.  Note that this will
         # be called on a different thread so be careful to make sure state that
@@ -75,7 +74,10 @@ def main():
         print('Subscribing to RX characteristic changes...')
         rx.start_notify(received)
 
-        # Now just wait for 60 seconds to receive data.
+        # Write a string to the TX characteristic.
+        tx.write_value('!B71;\r\n') #run forward
+        time.sleep(1)
+        tx.write_value('!B70;\r\n') #stop running forward
         print('Waiting 60 seconds to receive data from the device...')
         time.sleep(60)
     finally:

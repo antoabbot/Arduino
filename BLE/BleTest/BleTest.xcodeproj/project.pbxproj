@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		0258689F1C30A583009ADFB7 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0258689E1C30A583009ADFB7 /* main.swift */; };
+		025868A71C30A890009ADFB7 /* BTDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025868A51C30A890009ADFB7 /* BTDiscovery.swift */; };
+		025868A81C30A890009ADFB7 /* BTService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025868A61C30A890009ADFB7 /* BTService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +27,8 @@
 /* Begin PBXFileReference section */
 		0258689B1C30A583009ADFB7 /* BleTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BleTest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0258689E1C30A583009ADFB7 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		025868A51C30A890009ADFB7 /* BTDiscovery.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BTDiscovery.swift; path = BleTest/Classes/BTDiscovery.swift; sourceTree = "<group>"; };
+		025868A61C30A890009ADFB7 /* BTService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BTService.swift; path = BleTest/Classes/BTService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,6 +45,8 @@
 		025868921C30A583009ADFB7 = {
 			isa = PBXGroup;
 			children = (
+				025868A51C30A890009ADFB7 /* BTDiscovery.swift */,
+				025868A61C30A890009ADFB7 /* BTService.swift */,
 				0258689D1C30A583009ADFB7 /* BleTest */,
 				0258689C1C30A583009ADFB7 /* Products */,
 			);
@@ -119,6 +125,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				025868A81C30A890009ADFB7 /* BTService.swift in Sources */,
+				025868A71C30A890009ADFB7 /* BTDiscovery.swift in Sources */,
 				0258689F1C30A583009ADFB7 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

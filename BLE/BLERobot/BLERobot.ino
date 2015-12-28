@@ -86,6 +86,7 @@ bool isconnected = true;
 void loop() 
 {
   delay(100);       // Don't spin too fast!
+  sensor.measure();
 
   // Check if we are connected. if Not, don't bother doing any comms but stop the motors
   if (!ble.isConnected())

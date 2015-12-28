@@ -24,11 +24,15 @@ class SweepSensor
     uint8_t servoPin;
     uint16_t maxDistance;
     uint8_t angle;
+
+    uint16_t distbuff[5];   // Buffer containing measurements
+    uint8_t distix = 0;     // index into buffer
   public:
     SweepSensor(uint8_t servoPin, uint8_t pingPin1, uint8_t pingPin2, uint16_t maxDistance);
     void centre();
     void setangle(uint8_t angle);
 
+    void measure();
     uint16_t get_distance();
     uint16_t get_angle();
 

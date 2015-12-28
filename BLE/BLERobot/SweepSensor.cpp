@@ -6,6 +6,7 @@ SweepSensor::SweepSensor(uint8_t servoPin, uint8_t pingPin1, uint8_t pingPin2, u
   maxDistance(maxDistance)
 {
   servo.attach(servoPin);
+  memset(distbuff, 0, 5);
 }
 
 void SweepSensor::centre()
@@ -19,12 +20,35 @@ void SweepSensor::setangle(uint8_t newangle)
   servo.write(angle);
 }
 
+void SweepSensor::measure()
+{
+  uint16_t dist = sonar.ping_cm();
+  distbuff[distix++] = dist;
+  if (distix >= 5) distix = 0;
+}
 
 uint16_t SweepSensor::get_distance()
 {
-  uint16_t dist = sonar.ping_cm();
-  if (dist == 0) dist = maxDistance;
-  return dist;
+  uint16_t sum = 0;
+  uint8_t valCnt = 0;
+  for (uint8_t i=0; i< 5; ++i)
+  {
+    uint16_t val = distbuff[i];
+    if (val != 0) 
+    {
+      valCnt++;
+      sum += val;
+    }
+  }
+  
+  if (valCnt == 0) 
+  {
+    return maxDistance;
+  }
+  else
+  {
+    return sum / valCnt;
+  }
 }
 
 uint16_t SweepSensor::get_angle()
