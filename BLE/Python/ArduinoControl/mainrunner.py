@@ -2,6 +2,8 @@ import logging
 import time
 import uuid
 
+from multiprocessing import Process, Lock
+
 import Adafruit_BluefruitLE
 
 
@@ -16,6 +18,7 @@ RX_CHAR_UUID      = uuid.UUID('6E400003-B5A3-F393-E0A9-E50E24DCCA9E')
 # Get the BLE provider for the current platform.
 ble = Adafruit_BluefruitLE.get_provider()
 
+mutex = Lock()
 
 def main():
     ble.clear_cached_data()
@@ -61,21 +64,28 @@ def main():
         rx = uart.find_characteristic(RX_CHAR_UUID)
         tx = uart.find_characteristic(TX_CHAR_UUID)
 
-        class local:
-            buff = ""
+        # Local class to store received data
+        class recvData:
+            dist = 0
+            angle = 90
 
+        # Event handler for the returned BLE RX callback
         def received(data):
-            local.buff = data
+            with mutex:
+                try:
+                    # TODO: very crude parser - data might be wrapped, should concatenate and then split
+                    if len(data) > 9 and data[0] == '!' and data[1] == 'S' and data[8] == ';':
+                        recvData.dist = int(data[2:5])
+                        recvData.angle = int(data[5:8])
+                except:
+                    print("Error in event handler: Buff=" + data)
+
 
         # Turn on notification of RX characteristics using the callback above.
         print('Subscribing to RX characteristic changes...')
         rx.start_notify(received)
 
-        # Write a string to the TX characteristic.
-        #tx.write_value('!B71;\r\n') #run forward
-        #time.sleep(1)
-        #tx.write_value('!B70;\r\n') #stop running forward
-
+        # Crude control of robot. Drive for a second in each direction
         while True:
             user_input = raw_input("Press 'q' to end: ")
             if user_input == 'q':
@@ -96,8 +106,16 @@ def main():
                 tx.write_value("!B51;")
                 time.sleep(1)
                 tx.write_value("!B50;")
+            elif user_input == 'v':
+                tx.write_value("!B11;")
+            elif user_input == 'b':
+                tx.write_value("!B21;")
+            elif user_input == 'n':
+                tx.write_value("!B31;")
+            elif user_input == 'm':
+                tx.write_value("!B41;")
             elif user_input == 'p':
-                print(local.buff)
+                print("Dist=" + str(recvData.dist) +", Angle=" + str(recvData.angle))
 
         print('Exiting...')
     finally:

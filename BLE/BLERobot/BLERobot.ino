@@ -120,9 +120,7 @@ void loop()
     uint16_t dist = sensor.get_distance();
     uint8_t angle = sensor.get_angle();
   
-    ble.sendData('D', dist);
-    Serial.println(dist);
-    //ble.sendData('A', angle);
+    ble.sendDistData(dist, angle);
   }
 
   //

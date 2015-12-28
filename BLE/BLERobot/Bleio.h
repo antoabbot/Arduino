@@ -36,6 +36,7 @@ class Bleio
     bool isConnected();
     uint8_t readPacket(); 
     void sendData(const char prefix, int value);
+    void sendDistData(uint16_t dist, uint8_t angle);
     bool getButton(int& buttnum, bool& pressed);
   
 };

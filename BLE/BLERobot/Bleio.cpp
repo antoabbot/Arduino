@@ -78,6 +78,15 @@ void Bleio::sendData(const char prefix, int value)
   ble.println(sendbuffer);  
 }
 
+void Bleio::sendDistData(uint16_t dist, uint8_t angle)
+{
+  memset(sendbuffer, 0, BLEIO_BUFSIZE);
+  sprintf(sendbuffer, "!S%03d%03d;", dist, angle);
+  ble.println(sendbuffer);  
+  Serial.println(sendbuffer);
+}
+
+
 //
 // Read a data packet starting with !. places data in the buffer and returns length read.
 uint8_t Bleio::readPacket() 
