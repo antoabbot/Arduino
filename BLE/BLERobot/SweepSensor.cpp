@@ -24,14 +24,14 @@ void SweepSensor::measure()
 {
   uint16_t dist = sonar.ping_cm();
   distbuff[distix++] = dist;
-  if (distix >= 5) distix = 0;
+  if (distix >= DISTBUFFSIZE) distix = 0;
 }
 
 uint16_t SweepSensor::get_distance()
 {
   uint16_t sum = 0;
   uint8_t valCnt = 0;
-  for (uint8_t i=0; i< 5; ++i)
+  for (uint8_t i=0; i< DISTBUFFSIZE; ++i)
   {
     uint16_t val = distbuff[i];
     if (val != 0) 

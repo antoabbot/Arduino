@@ -16,6 +16,8 @@
 #include <NewPing.h>
 #include <Servo.h>
 
+#define DISTBUFFSIZE    5
+
 class SweepSensor
 {
   private:
@@ -25,8 +27,8 @@ class SweepSensor
     uint16_t maxDistance;
     uint8_t angle;
 
-    uint16_t distbuff[5];   // Buffer containing measurements
-    uint8_t distix = 0;     // index into buffer
+    uint16_t distbuff[DISTBUFFSIZE];   // Buffer containing measurements
+    volatile uint8_t distix = 0;     // index into buffer
   public:
     SweepSensor(uint8_t servoPin, uint8_t pingPin1, uint8_t pingPin2, uint16_t maxDistance);
     void centre();

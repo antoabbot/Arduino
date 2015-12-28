@@ -80,6 +80,7 @@ void setup()
 }
 
 bool isconnected = true;
+int sendcount = 0;
 
 /*****************************************************************************/
 // Main loop - runs repeatedly
@@ -110,13 +111,19 @@ void loop()
       Serial.println("BLE reconnected!");
     }
   }
-  
-  // Read the sensor distance and angle, and broadcast back to the client
-  uint16_t dist = sensor.get_distance();
-  uint8_t angle = sensor.get_angle();
 
-  ble.sendData('D', dist);
-  //ble.sendData('A', angle);
+  ++sendcount;
+  if (sendcount > 4)
+  {
+    sendcount = 0;
+    // Read the sensor distance and angle, and broadcast back to the client
+    uint16_t dist = sensor.get_distance();
+    uint8_t angle = sensor.get_angle();
+  
+    ble.sendData('D', dist);
+    Serial.println(dist);
+    //ble.sendData('A', angle);
+  }
 
   //
   // Read which of the 8 buttons on the Bluefruit LE app is pressed

@@ -16,6 +16,7 @@ RX_CHAR_UUID      = uuid.UUID('6E400003-B5A3-F393-E0A9-E50E24DCCA9E')
 # Get the BLE provider for the current platform.
 ble = Adafruit_BluefruitLE.get_provider()
 
+
 def main():
     ble.clear_cached_data()
 
@@ -60,26 +61,45 @@ def main():
         rx = uart.find_characteristic(RX_CHAR_UUID)
         tx = uart.find_characteristic(TX_CHAR_UUID)
 
-        # Write a string to the TX characteristic.
-        tx.write_value('!B21;\r\n')
+        class local:
+            buff = ""
 
-        # Function to receive RX characteristic changes.  Note that this will
-        # be called on a different thread so be careful to make sure state that
-        # the function changes is thread safe.  Use Queue or other thread-safe
-        # primitives to send data to other threads.
         def received(data):
-            print(data)
+            local.buff = data
 
         # Turn on notification of RX characteristics using the callback above.
         print('Subscribing to RX characteristic changes...')
         rx.start_notify(received)
 
         # Write a string to the TX characteristic.
-        tx.write_value('!B71;\r\n') #run forward
-        time.sleep(1)
-        tx.write_value('!B70;\r\n') #stop running forward
-        print('Waiting 60 seconds to receive data from the device...')
-        time.sleep(60)
+        #tx.write_value('!B71;\r\n') #run forward
+        #time.sleep(1)
+        #tx.write_value('!B70;\r\n') #stop running forward
+
+        while True:
+            user_input = raw_input("Press 'q' to end: ")
+            if user_input == 'q':
+                break
+            if user_input == 'a':
+                tx.write_value("!B71;")
+                time.sleep(1)
+                tx.write_value("!B70;")
+            elif user_input == 'z':
+                tx.write_value("!B81;")
+                time.sleep(1)
+                tx.write_value("!B80;")
+            elif user_input == 'x':
+                tx.write_value("!B61;")
+                time.sleep(1)
+                tx.write_value("!B60;")
+            elif user_input == 'c':
+                tx.write_value("!B51;")
+                time.sleep(1)
+                tx.write_value("!B50;")
+            elif user_input == 'p':
+                print(local.buff)
+
+        print('Exiting...')
     finally:
         # Make sure device is disconnected on exit.
         device.disconnect()
