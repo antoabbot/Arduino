@@ -11,7 +11,7 @@ Please note that you must use a BLE shield for this example to work.
 	<meta name="viewport" content="width=device-width, user-scalable=no,
 		shrink-to-fit=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
 
-	<title>Arduino LED On/Off BLE</title>
+	<title>CoderDojo Arduino BLE basic</title>
 
 	<style>
 		@import 'ui/css/evothings-app.css';
@@ -46,7 +46,7 @@ Please note that you must use a BLE shield for this example to work.
 		<!--<button class="menu" onclick=""><img src="ui/images/menu.svg" /></button>-->
 	</header>
 
-	<h1>Arduino LED On/Off BLE</h1>
+	<h1>CoderDojo Arduino BLE basic</h1>
 
 	<p id="info">Initializing...</p>
 
@@ -54,11 +54,15 @@ Please note that you must use a BLE shield for this example to work.
 
 	<br />
 
-	<button class="green wide big" onclick="app.ledOn()">LED ON</button>
+	<button class="green wide big" onclick="app.sensorLeft()">Sensor left</button>
 
 	<br />
 
-	<button class="red wide big" onclick="app.ledOff()">LED OFF</button>
+	<button class="green wide big" onclick="app.sensorMiddle()">Sensor middle</button>
+
+	<br />
+
+	<button class="green wide big" onclick="app.sensorRight()">Sensor right</button>
 
 	<script>
 	// Application object.
@@ -69,14 +73,20 @@ Please note that you must use a BLE shield for this example to work.
 	// Connected device.
 	app.device = null;
 
-	// Turn on LED.
-	app.ledOn = function()
+	// Move sensor to the left
+	app.sensorLeft = function()
+	{
+		app.device && app.device.writeDataString('!B31;');
+	}
+
+	// Move sensor to the middle
+	app.sensorMiddle = function()
 	{
 		app.device && app.device.writeDataString('!B21;');
 	}
 
-	// Turn off LED.
-	app.ledOff = function()
+	// Move sensor to the right
+	app.sensorRight = function()
 	{
 		app.device && app.device.writeDataString('!B11;');
 	}
