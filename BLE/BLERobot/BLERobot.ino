@@ -20,7 +20,7 @@
 //
 // Control is best acheived from the Bluefruit LE phone App, connected in
 // Controller mode and then running the control pad. 
-// Streaming dta can be monitored by the same app in UART mode
+// Streaming data can be monitored by the same app in UART mode
 // Raspberry Pi Python 2.7 can act as a controller
 // So can Python on a Mac, but NO windoze 10 as it has terrible BLE support
 // Commands are simple text strings, as are the returned data packets
@@ -50,6 +50,9 @@
 #define SENSOR_TX           2
 #define SENSOR_RX           3
 #define SENSOR_MAXDIST      100
+#define ANGLE_CENTRE        85
+#define ANGLE_MIN           10
+#define ANGLE_MAX           165
 
 // State variables used in the loop
 int speed;        // Motor speed
@@ -75,11 +78,12 @@ void setup()
   Serial.begin(115200);
 
   myservo.attach(SERVO_PIN);
-  angle = 90;
+  angle = ANGLE_CENTRE;
+  myservo.write(angle);       // centre the sensor
 
-  myservo.write(angle);      // centre the sensor
-  ble.initBle();        // Initialize BLE. Will block until user connects
-  AFMS1.begin();        // Start the motor control
+  AFMS1.begin();              // Start the motor control
+
+  ble.initBle("Dojo01");      // Initialize BLE. Will block until user connects
 }
 
 bool isconnected = true;
@@ -92,6 +96,7 @@ void loop()
   delay(100);       // Don't spin too fast!
   sensor.measure();
 
+/*
   // Check if we are connected. if Not, don't bother doing any comms but stop the motors
   if (!ble.isConnected())
   {
@@ -115,16 +120,17 @@ void loop()
     }
   }
 
+
+  // Only send data evey 4th time to avoid swamping the python client, which is S.L.O.W
   ++sendcount;
   if (sendcount > 4)
   {
     sendcount = 0;
     // Read the sensor distance and angle, and broadcast back to the client
-    uint16_t dist = sensor.get_distance();
-  
+    uint16_t dist = sensor.get_distance();  
     ble.sendDistData(dist, angle);
   }
-
+*/
   //
   // Read which of the 8 buttons on the Bluefruit LE app is pressed
   volatile bool isMotor = false;   // flag up motor control commands
@@ -135,59 +141,60 @@ void loop()
   if (!ble.getButton(buttnum, pressed))
     return;
 
-  Serial.print(buttnum);
+
+  //Serial.print(buttnum);
   switch(buttnum)
   {
     case 7:
-      Serial.println(":Forward");
+      //Serial.println(":Forward");
       speed = 150;
       isMotor = true;
       lDir = (pressed) ? FORWARD : RELEASE;
       rDir = (pressed) ? FORWARD : RELEASE;
       break;
     case 8:
-      Serial.println(":Backward");
+      //Serial.println(":Backward");
       speed = 150;
       isMotor = true;
       lDir = (pressed) ? BACKWARD : RELEASE;
       rDir = (pressed) ? BACKWARD : RELEASE;        
       break;
     case 6:
-      Serial.println(":Left");
+      //Serial.println(":Left");
       speed = 100;
       isMotor = true;
       lDir = (pressed) ? BACKWARD : RELEASE;
       rDir = (pressed) ? FORWARD : RELEASE;
       break;
     case 5:
-      Serial.println(":Right");
+      //Serial.println(":Right");
       speed = 100;
       isMotor = true;
       lDir = (pressed) ? FORWARD : RELEASE;
       rDir = (pressed) ? BACKWARD : RELEASE;
       break;
     case 1:
-      Serial.println(":LookLeft");
+      //Serial.println(":LookLeft");
       if (pressed)
         angle -=5;
 
       break;
     case 2:
-      Serial.println(":LookAhead");
+      //Serial.println(":LookAhead");
       if (pressed)
-        angle = 90;
+        angle = ANGLE_CENTRE;
       break;
     case 3:
-      Serial.println(":LookRight");
+      //Serial.println(":LookRight");
       if (pressed)
         angle += 5;
       break;
     default:
-      Serial.println(":Other");
+      //Serial.println(":Other");
       break;
   }
 
-  angle = constrain(angle, 10, 170);
+  angle = constrain(angle, ANGLE_MIN, ANGLE_MAX);
   myservo.write(angle);
 
   if (isMotor)

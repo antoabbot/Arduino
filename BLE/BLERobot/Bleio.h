@@ -32,7 +32,7 @@ class Bleio
   
   public:
     Bleio();
-    void initBle();
+    void initBle(String name);
     bool isConnected();
     uint8_t readPacket(); 
     void sendData(const char prefix, int value);

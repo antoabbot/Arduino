@@ -17,7 +17,7 @@ Bleio::Bleio()
 
 //
 // Initialise the BLE connection in Data mode
-void Bleio::initBle()
+void Bleio::initBle(String name)
 {
   Serial.print(F("Initialising the Bluefruit LE module: "));
 
@@ -25,21 +25,30 @@ void Bleio::initBle()
   {
     error(F("Couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?"));
   }
+  
   Serial.println( F("OK!") );
+
   Serial.println(F("Performing a factory reset: "));
   if ( ! ble.factoryReset() )
     error(F("Couldn't factory reset"));
 
-  ble.echo(false);
-  Serial.println("Requesting Bluefruit info:");
-  ble.info();
   ble.verbose(false); 
+
+  String cmd = "AT+GAPDEVNAME=" + name;
+  ble.sendCommandCheckOK(cmd.c_str());
+  ble.sendCommandCheckOK("ATZ");
+  ble.echo(false);
+  // Serial.println("Requesting Bluefruit info:");
+  // ble.info();
 
   Serial.println(F("Waiting for connection to continue..."));
   while (! ble.isConnected()) 
   {
+      Serial.print(".");
       delay(500);
   }
+
+  Serial.println();
 
   ble.sendCommandCheckOK("AT+HWModeLED=MODE");
   Serial.println( F("Switching to DATA mode!") );
@@ -63,11 +72,12 @@ bool Bleio::getButton(int& buttnum, bool& pressed)
 {
   uint8_t len = readPacket();
   if (len == 0) return false;
+  //Serial.println((char*)recvbuffer);
   if (recvbuffer[1] != 'B') return false;
   buttnum = recvbuffer[2] - '0';
   pressed = recvbuffer[3] - '0';
 
-  Serial.println(buttnum);
+  //Serial.println(buttnum);
   return true;
 }
 
@@ -83,7 +93,7 @@ void Bleio::sendDistData(uint16_t dist, uint8_t angle)
   memset(sendbuffer, 0, BLEIO_BUFSIZE);
   sprintf(sendbuffer, "!S%03d%03d;", dist, angle);
   ble.println(sendbuffer);  
-  Serial.println(sendbuffer);
+//  Serial.println(sendbuffer);
 }
 
 
@@ -100,6 +110,7 @@ uint8_t Bleio::readPacket()
   while (ble.available()) 
   {
     char c =  ble.read();
+    //Serial.print(c);
     if (c == '!') replyidx = 0;
     if (replyidx >= 20) continue;
     recvbuffer[replyidx] = c;
