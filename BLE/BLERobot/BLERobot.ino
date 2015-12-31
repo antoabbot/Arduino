@@ -46,7 +46,7 @@
 
 /*****************************************************************************/
 // Global variables and defines
-#define SERVO_PIN          5
+#define SERVO_PIN          9
 #define SENSOR_TX           2
 #define SENSOR_RX           3
 #define SENSOR_MAXDIST      100
@@ -54,7 +54,7 @@
 // State variables used in the loop
 int speed;        // Motor speed
 int lDir, rDir;   // direction of left and right motors
-
+int angle;        // Angle of the sensor
 
 Bleio ble;            // BlueFruit LE class to manage IO
 
@@ -64,9 +64,9 @@ Adafruit_DCMotor *lMotor = AFMS1.getMotor(1);
 Adafruit_DCMotor *rMotor = AFMS1.getMotor(2);
 
 // Create a sweep sensor instance
-SweepSensor sensor(SERVO_PIN, SENSOR_TX, SENSOR_RX, SENSOR_MAXDIST);
+SweepSensor sensor(SENSOR_TX, SENSOR_RX, SENSOR_MAXDIST);
 
-
+Servo myservo;
 
 /*****************************************************************************/
 // Setup function - runs once at startup
@@ -74,7 +74,10 @@ void setup()
 {
   Serial.begin(115200);
 
-  sensor.centre();      // centre the sensor
+  myservo.attach(SERVO_PIN);
+  angle = 90;
+
+  myservo.write(angle);      // centre the sensor
   ble.initBle();        // Initialize BLE. Will block until user connects
   AFMS1.begin();        // Start the motor control
 }
@@ -118,7 +121,6 @@ void loop()
     sendcount = 0;
     // Read the sensor distance and angle, and broadcast back to the client
     uint16_t dist = sensor.get_distance();
-    uint8_t angle = sensor.get_angle();
   
     ble.sendDistData(dist, angle);
   }
@@ -166,28 +168,27 @@ void loop()
       break;
     case 1:
       Serial.println(":LookLeft");
-      sensor.setangle(10);
-//      lDir = RELEASE;
-//      rDir = RELEASE;
+      if (pressed)
+        angle -=5;
+
       break;
     case 2:
       Serial.println(":LookAhead");
-      sensor.centre();
-//      lDir = RELEASE;
-//      rDir = RELEASE;
+      if (pressed)
+        angle = 90;
       break;
     case 3:
       Serial.println(":LookRight");
-      sensor.setangle(170);
-//      lDir = RELEASE;
-//      rDir = RELEASE;
+      if (pressed)
+        angle += 5;
       break;
     default:
       Serial.println(":Other");
-//      lDir = RELEASE;
-//      rDir = RELEASE;
       break;
   }
+
+  angle = constrain(angle, 10, 170);
+  myservo.write(angle);
 
   if (isMotor)
   {
