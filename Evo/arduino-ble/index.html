@@ -50,23 +50,23 @@
 
 	<h1>Dojo BLE</h1>
 
-	<button class="yellow wide" onclick="app.startScan()">Connect</button>
+	<button class="yellow wide" onclick="app.startScan('Dojo01')">Connect</button>
 
 
 	<p><strong>Status:</strong> <span id="status">Idle</span></p>
 
-	<button id="lookleft" onclick="app.scanleft();" class="green">Left</button>
-	<button id="lookmiddle" onclick="app.scanmiddle();" class="green">Middle</button>
-	<button id="lookright" onclick="app.scanright();" class="green">Right</button>
+	<button id="lookleft" onclick="app.sendCommand('!B31;');" class="green">Left</button>
+	<button id="lookmiddle" onclick="app.sendCommand('!B21;');" class="green">Middle</button>
+	<button id="lookright" onclick="app.sendCommand('!B11;');" class="green">Right</button>
 
     <p/>
 
-	<button id="left" onclick="app.left();" class="red">Left</button>
-  	<button id="fwd" onclick="app.forward();" class="red">Drive</button>
-	<button id="right" onclick="app.right();" class="red">Right</button>
+	<button id="left" onclick="app.sendCommand('!B61;');" class="red">Left</button>
+  	<button id="fwd" onclick="app.sendCommand('!B71;');" class="red">Drive</button>
+	<button id="right" onclick="app.sendCommand('!B51;');" class="red">Right</button>
     
     <p/>
-	<button id="stop" onclick="app.stop();" class="red">STOP!</button>
+	<button id="stop" onclick="app.sendCommand('!B70;');" class="red">STOP!</button>
 
 
 </body>

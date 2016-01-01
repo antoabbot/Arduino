@@ -49,9 +49,6 @@ var app =
 	characteristicWrite: null,
 	descriptorNotification: null,
 
-	// Data that is plotted on the canvas.
-	dataPoints: [],
-
 	initialize: function()
 	{
 		document.addEventListener(
@@ -60,6 +57,7 @@ var app =
 			false);
 	},
 
+    // Display any status to a UI element as well as to the console log
 	displayStatus: function(status)
 	{
 		if(document.getElementById('status').innerHTML == status)
@@ -76,9 +74,9 @@ var app =
 		// app.startScan();
 	},
 
-	startScan: function()
+	startScan: function(deviceName)
 	{
-		app.displayStatus('Scanning...');
+		app.displayStatus('Scanning for ' + deviceName + '...');
 		evothings.ble.startScan(
 			function(deviceInfo)
 			{
@@ -88,10 +86,10 @@ var app =
 				}
 				console.log('found device: ' + deviceInfo.name);
 				app.knownDevices[deviceInfo.address] = deviceInfo;
-				if (deviceInfo.name == 'Dojo01' && !app.connectee)
+				if (deviceInfo.name == deviceName && !app.connectee)
 				{
-					console.log('Found Dojo01');
-					connectee = deviceInfo;
+					console.log('Found ' + deviceName);
+					app.connectee = deviceInfo;
 					app.connect(deviceInfo.address);
 				}
 			},
@@ -125,6 +123,7 @@ var app =
 			});
 	},
     
+    // Convert a string into a Uint8Array for transmission via BLE
     text2ua: function(s) 
     {
         var ua = new Uint8Array(s.length);
@@ -135,6 +134,7 @@ var app =
     return ua;
     },
  
+    // Convert the raw data in the input buffer into a string
     ua2text: function(ua) 
     {
         var s = '';
@@ -145,8 +145,9 @@ var app =
         }
         return s;
     },
-
-	scanleft: function()
+    
+    // Send a string command to the BLE device
+	sendCommand: function(str)
 	{
         var arr = app.text2ua('!B31;')
 		app.write(
@@ -156,65 +157,7 @@ var app =
 			arr); 
 	},
 
-	scanmiddle: function()
-	{
-        var arr = app.text2ua('!B21;')
-		app.write(
-			'writeCharacteristic',
-			app.deviceHandle,
-			app.characteristicWrite,
-			arr);
-	},
-    
-	scanright: function()
-	{
-        var arr = app.text2ua('!B11;')
-		app.write(
-			'writeCharacteristic',
-			app.deviceHandle,
-			app.characteristicWrite,
-			arr);
-	},
-    
-    forward: function()
-	{
-        var arr = app.text2ua('!B71;')
-		app.write(
-			'writeCharacteristic',
-			app.deviceHandle,
-			app.characteristicWrite,
-			arr);
-	},
-            
-    left: function()
-	{
-        var arr = app.text2ua('!B61;')
-		app.write(
-			'writeCharacteristic',
-			app.deviceHandle,
-			app.characteristicWrite,
-			arr);
-	},    
-    
-    right: function()
-	{
-        var arr = app.text2ua('!B51;')
-		app.write(
-			'writeCharacteristic',
-			app.deviceHandle,
-			app.characteristicWrite,
-			arr);
-	},
-    stop: function()
-	{
-        var arr = app.text2ua('!B70;')
-		app.write(
-			'writeCharacteristic',
-			app.deviceHandle,
-			app.characteristicWrite,
-			arr);
-	},
-
+    // Write to the Ble device
 	write: function(writeFunc, deviceHandle, handle, value)
 	{
 		if (handle)
@@ -225,7 +168,7 @@ var app =
 				value,
 				function()
 				{
-					console.log(writeFunc + ': ' + handle + ' success.');
+					//console.log(writeFunc + ': ' + handle + ' success.');
 				},
 				function(errorCode)
 				{
@@ -251,7 +194,7 @@ var app =
 			app.characteristicRead,
 			function(data)
 			{
-				//app.displayStatus('Active');
+                // TODO: Parse and marshal the data 
                 app.displayStatus('Returned data:' + app.ua2text(data));
 			},
 			function(errorCode)
@@ -260,7 +203,7 @@ var app =
 			});
 	},
 
-
+    // Get the services for the BlueFruit LE shield
 	getServices: function(deviceHandle)
 	{
 		app.displayStatus('Reading services...');
