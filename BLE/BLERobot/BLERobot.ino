@@ -120,17 +120,18 @@ void loop()
     }
   }
 
-
-  // Only send data evey 4th time to avoid swamping the python client, which is S.L.O.W
+*/
+  // Only send data evey sendcount'th time to avoid swamping the python client, which is S.L.O.W
+  // Cordova keeps up fine!
   ++sendcount;
-  if (sendcount > 4)
+  if (sendcount > 0)
   {
     sendcount = 0;
     // Read the sensor distance and angle, and broadcast back to the client
     uint16_t dist = sensor.get_distance();  
-    ble.sendDistData(dist, angle);
+    ble.sendDistData(dist, 180 - angle);
   }
-*/
+
   //
   // Read which of the 8 buttons on the Bluefruit LE app is pressed
   volatile bool isMotor = false;   // flag up motor control commands

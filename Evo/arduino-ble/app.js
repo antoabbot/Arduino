@@ -133,10 +133,13 @@ var app =
     return ua;
     },
  
-    ua2text: function(ua) {
+    ua2text: function(ua) 
+    {
         var s = '';
-        for (var i = 0; i < ua.length; i++) {
-            s += String.fromCharCode(ua[i]);
+        for (var i = 0; i < ua.byteLength; i++) 
+        {
+            var val = new DataView(ua).getUint8(i);
+            s += String.fromCharCode(val);
         }
         return s;
     },
@@ -197,8 +200,8 @@ var app =
 			app.characteristicRead,
 			function(data)
 			{
-				app.displayStatus('Active');
-				app.drawLines([new DataView(data).getUint16(0, true)]);
+				//app.displayStatus('Active');
+                app.displayStatus('Returned data:' + app.ua2text(data));
 			},
 			function(errorCode)
 			{
@@ -206,43 +209,6 @@ var app =
 			});
 	},
 
-	drawLines: function(dataArray)
-	{
-		var canvas = document.getElementById('canvas');
-		var context = canvas.getContext('2d');
-		var dataPoints = app.dataPoints;
-
-		dataPoints.push(dataArray);
-		if (dataPoints.length > canvas.width)
-		{
-			dataPoints.splice(0, (dataPoints.length - canvas.width));
-		}
-
-		var magnitude = 1024;
-
-		function calcY(i)
-		{
-			return (i * canvas.height) / magnitude;
-		}
-
-		function drawLine(offset, color)
-		{
-			context.strokeStyle = color;
-			context.beginPath();
-			context.moveTo(0, calcY(dataPoints[dataPoints.length-1][offset]));
-			var x = 1;
-			for (var i = dataPoints.length - 2; i >= 0; i--)
-			{
-				var y = calcY(dataPoints[i][offset]);
-				context.lineTo(x, y);
-				x++;
-			}
-			context.stroke();
-		}
-
-		context.clearRect(0, 0, canvas.width, canvas.height);
-		drawLine(0, '#f00');
-	},
 
 	getServices: function(deviceHandle)
 	{
@@ -258,28 +224,22 @@ var app =
 				for (var ci in service.characteristics)
 				{ 
 					var characteristic = service.characteristics[ci];
-                    console.log('char:' + characteristic.uuid);
 
 					if (characteristic.uuid == '6e400003-b5a3-f393-e0a9-e50e24dcca9e')
 					{
-                        console.log('Read found');
 						app.characteristicRead = characteristic.handle;
 					}
 					else if (characteristic.uuid == '6e400002-b5a3-f393-e0a9-e50e24dcca9e')
 					{
-                        console.log('Write found');
 						app.characteristicWrite = characteristic.handle;
 					}
 
 					for (var di in characteristic.descriptors)
 					{
 						var descriptor = characteristic.descriptors[di];
-                        console.log('Desc:' + descriptor.uuid + ' - ' + descriptor.handle);
-
 						if (characteristic.uuid == '6e400003-b5a3-f393-e0a9-e50e24dcca9e' &&
 							descriptor.uuid == '00002902-0000-1000-8000-00805f9b34fb')
 						{
-                            console.log('Notify found');
 							app.descriptorNotification = descriptor.handle;
 						}
 					}
