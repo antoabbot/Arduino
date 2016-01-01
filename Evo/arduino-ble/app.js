@@ -124,23 +124,41 @@ var app =
 				app.displayStatus('connect error: ' + errorCode);
 			});
 	},
+    
+    text2ua: function(s) {
+        var ua = new Uint8Array(s.length);
+        for (var i = 0; i < s.length; i++) {
+            ua[i] = s.charCodeAt(i);
+        }
+    return ua;
+    },
+ 
+    ua2text: function(ua) {
+        var s = '';
+        for (var i = 0; i < ua.length; i++) {
+            s += String.fromCharCode(ua[i]);
+        }
+        return s;
+    },
 
 	on: function()
 	{
+        var arr = app.text2ua('!B31;')
 		app.write(
 			'writeCharacteristic',
 			app.deviceHandle,
 			app.characteristicWrite,
-			new Uint8Array([1])); // 1 = on
+			arr); 
 	},
 
 	off: function()
 	{
+        var arr = app.text2ua('!B11;')
 		app.write(
 			'writeCharacteristic',
 			app.deviceHandle,
 			app.characteristicWrite,
-			new Uint8Array([0])); // 0 = off
+			arr);
 	},
 
 	write: function(writeFunc, deviceHandle, handle, value)
