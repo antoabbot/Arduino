@@ -1,4 +1,4 @@
-// JavaScript code for the Arduino BLE example app.
+// JavaScript code for the Adafruit BlueFruit Arduino BLE.
 
 /**
  * The BLE plugin is loaded asynchronously so the ble
@@ -73,7 +73,7 @@ var app =
 	{
 		ble = evothings.ble; // Evothings BLE plugin
 
-		app.startScan();
+		// app.startScan();
 	},
 
 	startScan: function()

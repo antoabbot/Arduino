@@ -76,15 +76,15 @@ Servo myservo;
 void setup() 
 {
   Serial.begin(115200);
+   ble.initBle("Dojo01");      // Initialize BLE. Will block until user connects
 
   myservo.attach(SERVO_PIN);
   angle = ANGLE_CENTRE;
   myservo.write(angle);       // centre the sensor
 
   AFMS1.begin();              // Start the motor control
-
-  ble.initBle("Dojo01");      // Initialize BLE. Will block until user connects
 }
+ 
 
 bool isconnected = true;
 int sendcount = 0;
