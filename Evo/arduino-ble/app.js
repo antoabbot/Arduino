@@ -125,9 +125,11 @@ var app =
 			});
 	},
     
-    text2ua: function(s) {
+    text2ua: function(s) 
+    {
         var ua = new Uint8Array(s.length);
-        for (var i = 0; i < s.length; i++) {
+        for (var i = 0; i < s.length; i++) 
+        {
             ua[i] = s.charCodeAt(i);
         }
     return ua;
@@ -144,7 +146,7 @@ var app =
         return s;
     },
 
-	on: function()
+	scanleft: function()
 	{
         var arr = app.text2ua('!B31;')
 		app.write(
@@ -154,9 +156,58 @@ var app =
 			arr); 
 	},
 
-	off: function()
+	scanmiddle: function()
+	{
+        var arr = app.text2ua('!B21;')
+		app.write(
+			'writeCharacteristic',
+			app.deviceHandle,
+			app.characteristicWrite,
+			arr);
+	},
+    
+	scanright: function()
 	{
         var arr = app.text2ua('!B11;')
+		app.write(
+			'writeCharacteristic',
+			app.deviceHandle,
+			app.characteristicWrite,
+			arr);
+	},
+    
+    forward: function()
+	{
+        var arr = app.text2ua('!B71;')
+		app.write(
+			'writeCharacteristic',
+			app.deviceHandle,
+			app.characteristicWrite,
+			arr);
+	},
+            
+    left: function()
+	{
+        var arr = app.text2ua('!B61;')
+		app.write(
+			'writeCharacteristic',
+			app.deviceHandle,
+			app.characteristicWrite,
+			arr);
+	},    
+    
+    right: function()
+	{
+        var arr = app.text2ua('!B51;')
+		app.write(
+			'writeCharacteristic',
+			app.deviceHandle,
+			app.characteristicWrite,
+			arr);
+	},
+    stop: function()
+	{
+        var arr = app.text2ua('!B70;')
 		app.write(
 			'writeCharacteristic',
 			app.deviceHandle,

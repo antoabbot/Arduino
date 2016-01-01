@@ -52,11 +52,18 @@
 
 	<p><strong>Status:</strong> <span id="status">Idle</span></p>
 
-	<button id="on" onclick="app.on();" class="green">LED ON</button>
-	<button id="off" onclick="app.off();" class="red">LED OFF</button>
+	<button id="lookleft" onclick="app.scanleft();" class="green">Left</button>
+	<button id="lookmiddle" onclick="app.scanmiddle();" class="green">Middle</button>
+	<button id="lookright" onclick="app.scanright();" class="green">Right</button>
 
-	<h2>Variable resistor value</h2>
-	<canvas id="canvas" width="300" height="200"></canvas>
+    <p/>
+
+	<button id="left" onclick="app.left();" class="red">Left</button>
+  	<button id="fwd" onclick="app.forward();" class="red">Drive</button>
+	<button id="right" onclick="app.right();" class="red">Right</button>
+    
+    <p/>
+	<button id="stop" onclick="app.stop();" class="red">STOP!</button>
 
 
 </body>
