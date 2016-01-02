@@ -149,7 +149,7 @@ var app =
     // Send a string command to the BLE device
 	sendCommand: function(str)
 	{
-        var arr = app.text2ua('!B31;')
+        var arr = app.text2ua(str)
 		app.write(
 			'writeCharacteristic',
 			app.deviceHandle,
