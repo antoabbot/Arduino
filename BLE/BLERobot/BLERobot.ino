@@ -27,12 +27,12 @@
 /*****************************************************************************/
 
 // Includes required for the Bluetooth LE IO. 
-#include <SPI.h>
-#include <SoftwareSerial.h>
-#include <Adafruit_BLE.h>
-#include <Adafruit_BluefruitLE_SPI.h>
-#include <Adafruit_BluefruitLE_UART.h>
-#include "Bleio.h"
+//#include <SPI.h>
+//#include <SoftwareSerial.h>
+//#include <Adafruit_BLE.h>
+//#include <Adafruit_BluefruitLE_SPI.h>
+//#include <Adafruit_BluefruitLE_UART.h>
+//#include "Bleio.h"
 
 // Includes for the Motor controller
 #include <Wire.h>
@@ -59,7 +59,7 @@ int speed;        // Motor speed
 int lDir, rDir;   // direction of left and right motors
 int angle;        // Angle of the sensor
 
-Bleio ble;            // BlueFruit LE class to manage IO
+// Bleio ble;            // BlueFruit LE class to manage IO
 
 // Create an instance of the motor shield and two motors
 Adafruit_MotorShield AFMS1 = Adafruit_MotorShield(0x61);
@@ -76,7 +76,7 @@ Servo myservo;
 void setup() 
 {
   Serial.begin(115200);
-   ble.initBle("Dojo01");      // Initialize BLE. Will block until user connects
+//   ble.initBle("Dojo01");      // Initialize BLE. Will block until user connects
 
   myservo.attach(SERVO_PIN);
   angle = ANGLE_CENTRE;
@@ -129,18 +129,18 @@ void loop()
     sendcount = 0;
     // Read the sensor distance and angle, and broadcast back to the client
     uint16_t dist = sensor.get_distance();  
-    ble.sendDistData(dist, 180 - angle);
+    //ble.sendDistData(dist, 180 - angle);
   }
 
   //
   // Read which of the 8 buttons on the Bluefruit LE app is pressed
   volatile bool isMotor = false;   // flag up motor control commands
-  bool pressed;           // Pressed or released
-  int buttnum;        // The button number
+  bool pressed = true;;           // Pressed or released
+  int buttnum = 7;        // The button number
 
   // Check if there is data. If false, then no command waiting for us
-  if (!ble.getButton(buttnum, pressed))
-    return;
+//  if (!ble.getButton(buttnum, pressed))
+//    return;
 
 
   //Serial.print(buttnum);
