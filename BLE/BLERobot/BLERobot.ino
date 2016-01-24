@@ -1,217 +1,83 @@
-/*****************************************************************************/
-// Robot remote control via Bluetooth LE
-// Author: Anthony Abbot
-// Date: 27 Dec 2015
-// 
-// This code has been developed for use by the Olney Coder Dojo club
-//
-// This utilizes ther following components:
-//  - An Arduino Uno R3
-//  - An Adafruit bluefruit LE Shield
-//  - An Adafruit Motor/Stepper/Servo Shield for Arduino v2
-//  - An SR04 utrasonic proximity sensor
-//  - A servo motor to rotate the sensor
-//  - A two motor robot platform, driven from M1 an M2 of the motor shield
-//
-// Pins used:
-//  - D2 and D3 for the proximity sensor
-//  - D5 for the servo control
-//  - M1 and M2 output to drive the left and right motors
-//
-// Control is best acheived from the Bluefruit LE phone App, connected in
-// Controller mode and then running the control pad. 
-// Streaming data can be monitored by the same app in UART mode
-// Raspberry Pi Python 2.7 can act as a controller
-// So can Python on a Mac, but NO windoze 10 as it has terrible BLE support
-// Commands are simple text strings, as are the returned data packets
-/*****************************************************************************/
-
-// Includes required for the Bluetooth LE IO. 
-//#include <SPI.h>
-//#include <SoftwareSerial.h>
-//#include <Adafruit_BLE.h>
-//#include <Adafruit_BluefruitLE_SPI.h>
-//#include <Adafruit_BluefruitLE_UART.h>
-//#include "Bleio.h"
-
-// Includes for the Motor controller
-#include <Wire.h>
-#include <Adafruit_MotorShield.h>
-
-// Includes for the scanning ultrasound proximity sensor 
-#include <NewPing.h>
-#include <Servo.h>
-#include "SweepSensor.h"
-
-
-/*****************************************************************************/
-// Global variables and defines
-#define SERVO_PIN          9
-#define SENSOR_TX           2
-#define SENSOR_RX           3
-#define SENSOR_MAXDIST      100
-#define ANGLE_CENTRE        85
-#define ANGLE_MIN           10
-#define ANGLE_MAX           165
-
-// State variables used in the loop
-int speed;        // Motor speed
-int lDir, rDir;   // direction of left and right motors
-int angle;        // Angle of the sensor
-
-// Bleio ble;            // BlueFruit LE class to manage IO
-
-// Create an instance of the motor shield and two motors
-Adafruit_MotorShield AFMS1 = Adafruit_MotorShield(0x61);
-Adafruit_DCMotor *lMotor = AFMS1.getMotor(1);
-Adafruit_DCMotor *rMotor = AFMS1.getMotor(2);
-
-// Create a sweep sensor instance
-SweepSensor sensor(SENSOR_TX, SENSOR_RX, SENSOR_MAXDIST);
-
-Servo myservo;
-
-/*****************************************************************************/
-// Setup function - runs once at startup
-void setup() 
-{
-  Serial.begin(115200);
-//   ble.initBle("Dojo01");      // Initialize BLE. Will block until user connects
-
-  myservo.attach(SERVO_PIN);
-  angle = ANGLE_CENTRE;
-  myservo.write(angle);       // centre the sensor
-
-  AFMS1.begin();              // Start the motor control
-}
- 
-
-bool isconnected = true;
-int sendcount = 0;
-
-/*****************************************************************************/
-// Main loop - runs repeatedly
-void loop() 
-{
-  delay(100);       // Don't spin too fast!
-  sensor.measure();
-
 /*
-  // Check if we are connected. if Not, don't bother doing any comms but stop the motors
-  if (!ble.isConnected())
-  {
-    if (isconnected)
-    {
-      isconnected = false;
-      Serial.println("BLE disconnected!");
-      lMotor->run(RELEASE);
-      rMotor->run(RELEASE);
-    }
-    
-    delay(2000);  // Sleep for 2 seconds
-    return;   
-  }
-  else
-  {
-    if(!isconnected)
-    {
-      isconnected = true;
-      Serial.println("BLE reconnected!");
-    }
-  }
-
+  Copyright (c) 2015 Intel Corporation. All rights reserved.
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-
+  1301 USA
 */
-  // Only send data evey sendcount'th time to avoid swamping the python client, which is S.L.O.W
-  // Cordova keeps up fine!
-  ++sendcount;
-  if (sendcount > 0)
-  {
-    sendcount = 0;
-    // Read the sensor distance and angle, and broadcast back to the client
-    uint16_t dist = sensor.get_distance();  
-    //ble.sendDistData(dist, 180 - angle);
-  }
-
-  //
-  // Read which of the 8 buttons on the Bluefruit LE app is pressed
-  volatile bool isMotor = false;   // flag up motor control commands
-  bool pressed = true;;           // Pressed or released
-  int buttnum = 7;        // The button number
-
-  // Check if there is data. If false, then no command waiting for us
-//  if (!ble.getButton(buttnum, pressed))
-//    return;
 
 
-  //Serial.print(buttnum);
-  switch(buttnum)
-  {
-    case 7:
-      //Serial.println(":Forward");
-      speed = 150;
-      isMotor = true;
-      lDir = (pressed) ? FORWARD : RELEASE;
-      rDir = (pressed) ? FORWARD : RELEASE;
-      break;
-    case 8:
-      //Serial.println(":Backward");
-      speed = 150;
-      isMotor = true;
-      lDir = (pressed) ? BACKWARD : RELEASE;
-      rDir = (pressed) ? BACKWARD : RELEASE;        
-      break;
-    case 6:
-      //Serial.println(":Left");
-      speed = 100;
-      isMotor = true;
-      lDir = (pressed) ? BACKWARD : RELEASE;
-      rDir = (pressed) ? FORWARD : RELEASE;
-      break;
-    case 5:
-      //Serial.println(":Right");
-      speed = 100;
-      isMotor = true;
-      lDir = (pressed) ? FORWARD : RELEASE;
-      rDir = (pressed) ? BACKWARD : RELEASE;
-      break;
-    case 1:
-      //Serial.println(":LookLeft");
-      if (pressed)
-        angle -=5;
+#include <CurieBle.h>
 
-      break;
-    case 2:
-      //Serial.println(":LookAhead");
-      if (pressed)
-        angle = ANGLE_CENTRE;
-      break;
-    case 3:
-      //Serial.println(":LookRight");
-      if (pressed)
-        angle += 5;
-      break;
-    default:
-      //Serial.println(":Other");
-      break;
-  }
+const int ledPin = 13; // set ledPin to use on-board LED
+BLEPeripheral blePeripheral; // create peripheral instance
 
-  angle = constrain(angle, ANGLE_MIN, ANGLE_MAX);
-  myservo.write(angle);
+BLEService ledService("19B10000-E8F2-537E-4F6C-D104768A1214"); // create service
 
-  if (isMotor)
-  {
-    lMotor->setSpeed(speed);
-    lMotor->run(lDir);
-    rMotor->setSpeed(speed);
-    rMotor->run(rDir);
-  }
+// create switch characteristic and allow remote device to read and write
+BLECharCharacteristic switchChar("19B10001-E8F2-537E-4F6C-D104768A1214", BLERead | BLEWrite);
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(ledPin, OUTPUT); // use the LED on pin 13 as an output
+
+  // set the local name peripheral advertises
+  blePeripheral.setLocalName("LEDCB");
+  // set the UUID for the service this peripheral advertises
+  blePeripheral.setAdvertisedServiceUuid(ledService.uuid());
+
+  // add service and characteristic
+  blePeripheral.addAttribute(ledService);
+  blePeripheral.addAttribute(switchChar);
+
+  // assign event handlers for connected, disconnected to peripheral
+  blePeripheral.setEventHandler(BLEConnected, blePeripheralConnectHandler);
+  blePeripheral.setEventHandler(BLEDisconnected, blePeripheralDisconnectHandler);
+
+  // assign event handlers for characteristic
+  switchChar.setEventHandler(BLEWritten, switchCharacteristicWritten);
+// set an initial value for the characteristic
+  switchChar.setValue(0);
+
+  // advertise the service
+  blePeripheral.begin();
+  Serial.println(("Bluetooth device active, waiting for connections..."));
 }
 
+void loop() {
+  // poll peripheral
+  blePeripheral.poll();
+}
 
+void blePeripheralConnectHandler(BLECentral& central) {
+  // central connected event handler
+  Serial.print("Connected event, central: ");
+  Serial.println(central.address());
+}
 
+void blePeripheralDisconnectHandler(BLECentral& central) {
+  // central disconnected event handler
+  Serial.print("Disconnected event, central: ");
+  Serial.println(central.address());
+}
 
+void switchCharacteristicWritten(BLECentral& central, BLECharacteristic& characteristic) {
+  // central wrote new value to characteristic, update LED
+  Serial.print("Characteristic event, written: ");
 
-
-
-
-
+  if (switchChar.value()) {
+    Serial.println("LED on");
+    digitalWrite(ledPin, HIGH);
+  } else {
+    Serial.println("LED off");
+    digitalWrite(ledPin, LOW);
+  }
+}

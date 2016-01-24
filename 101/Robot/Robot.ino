@@ -100,5 +100,9 @@ void loop()
   Serial.print(pitch);
   Serial.print(","); // print comma so values can be parsed
   Serial.println(roll);
-    
+
+  //nMake the sensor always point in one direction
+  angle = ANGLE_CENTRE + (yaw / 3.1415 * 180.0);
+  angle = constrain(angle, ANGLE_MIN, ANGLE_MAX);
+  myservo.write(angle);
 }
