@@ -28,7 +28,7 @@ String data;          // Data received from the LE device
 // Setup function - runs once at startup
 void setup() 
 {
-  Serial.begin(115200);
+  Serial.begin(9600);
    ble.initBle("Dojo01");      // Initialize BLE. Will block until user connects
 }
  
