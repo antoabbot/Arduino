@@ -23,8 +23,8 @@ int angle;        // Angle of the sensor
 
 // Create an instance of the motor shield and two motors
 Adafruit_MotorShield AFMS1 = Adafruit_MotorShield(0x61);
-Adafruit_DCMotor *lMotor = AFMS1.getMotor(1);
-Adafruit_DCMotor *rMotor = AFMS1.getMotor(2);
+Adafruit_DCMotor *lMotor = AFMS1.getMotor(3);
+Adafruit_DCMotor *rMotor = AFMS1.getMotor(4);
 
 Servo myservo;
 
